@@ -1,0 +1,159 @@
+﻿<Page
+    x:Class="App.Views.OrderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:models="using:Models"
+	xmlns:local="using:App.Converter"
+    mc:Ignorable="d">
+
+
+	<Page.Resources>
+        <DataTemplate x:Key="ProductListViewTemplate" x:DataType="models:OrderDetail">
+			<StackPanel Orientation="Horizontal">
+			    <TextBlock Text="{x:Bind Product.Id}"  Width="200" Margin="0,5,0,5"/>
+                <AppBarSeparator/>
+                <TextBlock Text="{x:Bind Quantity}" Width="100" Margin="0,5,0,5"/>
+                <AppBarSeparator/>
+                <TextBlock Text="{x:Bind ImportPrice}"  Width="100" Margin="0,5,0,5"/>
+                <AppBarSeparator/>
+                <TextBlock Text="{x:Bind SalePrice}"    Width="100" Margin="0,5,0,5"/>
+            </StackPanel>
+		</DataTemplate>
+	</Page.Resources>
+
+    <Grid x:Name="ContentArea">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="7*"/>
+			<ColumnDefinition Width="5*"/>
+		</Grid.ColumnDefinitions>
+
+        <StackPanel>
+            <StackPanel Orientation="Horizontal" Height="48">
+                <TextBlock VerticalAlignment="Center">Filter By Date Placed:</TextBlock>
+                <CalendarDatePicker  Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}" DateChanged="OnStartDateChanged" PlaceholderText="Start date" Margin="10 0 10 0"/>
+                <CalendarDatePicker Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}" DateChanged="OnEndDateChanged" PlaceholderText="End date"/>
+                <AppBarSeparator Margin="10 0 10 0"/>
+
+                <TextBlock Text="Total order: " Margin="0 0 8 0" VerticalAlignment="Center"/>
+                <TextBlock VerticalAlignment="Center" Text="{x:Bind ViewModel.TotalOrderCount, Mode=OneWay}"/>
+
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0 10 0 10" Height="48">
+
+                <TextBlock Text="No.Item per page: " VerticalAlignment="Center"/>
+                <NumberBox 
+                    Value="{x:Bind ViewModel.PageSize, Mode=TwoWay}" Margin="8 0 0 0"
+                    VerticalAlignment="Center"
+                    SpinButtonPlacementMode="Hidden"
+                    ValueChanged="OnPageSizeChanged"
+                    SmallChange="5"
+                    LargeChange="20" />
+
+
+                <AppBarSeparator Margin="10 0 10 0"/>
+
+                <StackPanel x:Name="Pager" Orientation="Horizontal" >
+                    <Button Background="Transparent" Content="	&lt;" VerticalAlignment="Center" Command="{x:Bind ViewModel.PreviousPageClickCommand}"/>
+
+                    <TextBlock Text="Page" Margin="8 0 8 0" VerticalAlignment="Center"/>
+                    <ComboBox Margin="0 0 8 0" ItemsSource="{x:Bind ViewModel.OrderPageNumberList}" 
+                         SelectedItem="{x:Bind ViewModel.SelectedPage, Mode=TwoWay}"
+                         SelectionChanged="OnPageChanged"
+                         VerticalAlignment="Center"/>
+                    <TextBlock Margin="0 0 8 0" Text="of" VerticalAlignment="Center"/>
+                    <TextBlock Margin="0 0 8 0" Text="{x:Bind ViewModel.TotalPageCount, Mode=OneWay}" VerticalAlignment="Center"/>
+
+                    <Button Background="Transparent" Content="&gt;" VerticalAlignment="Center" Command="{x:Bind ViewModel.NextPageClickCommand}"/>
+
+                </StackPanel>
+
+                <AppBarSeparator Margin="10 0 10 0"/>
+
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <AppBarButton Icon="Add"  Click="OnAddOrderClicked"/>
+                    <AppBarSeparator />
+                    <AppBarButton Icon="Edit" Command="{x:Bind ViewModel.OrderEditCommand}" Click="OnEditOrderClicked"/>
+                    <AppBarSeparator />
+                    <AppBarButton Icon="Delete"  Command="{x:Bind ViewModel.OrderDeleteCommand}" />
+                </StackPanel>
+            </StackPanel>
+            <ScrollViewer Height="Auto" VerticalScrollMode="Enabled">
+            <controls:DataGrid
+                Name="OrderListDataGrid"
+	            IsReadOnly="True"
+	            AutoGenerateColumns="False"
+	            GridLinesVisibility="All"
+                SelectionChanged="OnOrderSelectionChanged"
+                SelectedItem="{x:Bind ViewModel.SelectedOrder, Mode=TwoWay}"
+	            HorizontalGridLinesBrush="Black"
+                ItemsSource="{x:Bind ViewModel.OrderList, Mode=OneWay}">
+
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTextColumn Binding="{Binding Id}" Header="ID"/>
+                    <controls:DataGridTextColumn Binding="{Binding Customer.FullName}" Header="Customer" />
+                    <controls:DataGridTextColumn Binding="{Binding OrderPlaced}" Header="Order Placed Date" />
+                    <controls:DataGridTextColumn Binding="{Binding OrderFulfilled}" Header="Order Fulfilled Date" />
+                    <controls:DataGridTextColumn Binding="{Binding TotalPayment}" Header="Total Payment"  Width="*" />
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
+            </ScrollViewer>
+        </StackPanel>
+        
+
+		<Grid Grid.Column="1" Margin="24 0 0 0">
+            <StackPanel DataContext="{Binding ElementName=OrderListDataGrid, Path=SelectedItem}">
+                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                    <TextBlock Width="200" Style="{StaticResource SubtitleTextBlockStyle}" Text="Customer:"/>
+                    <TextBlock Text="{Binding Customer.FullName}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                    <TextBlock Width="200" Style="{StaticResource SubtitleTextBlockStyle}" Text="Address:"/>
+                    <TextBlock Text="{Binding Customer.Address}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                    <TextBlock Width="200" Style="{StaticResource SubtitleTextBlockStyle}" Text="Phone:"/>
+                    <TextBlock Text="{Binding Customer.Phone}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                    <TextBlock Width="200" Style="{StaticResource SubtitleTextBlockStyle}" Text="Placed Date:"/>
+                    <TextBlock Text="{Binding OrderPlaced}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                    <TextBlock Width="200" Style="{StaticResource SubtitleTextBlockStyle}" Text="Fulfilled Date:"/>
+                    <TextBlock Text="{Binding OrderFulfilled}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                    <TextBlock Width="200" Style="{StaticResource SubtitleTextBlockStyle}" Text="Total Payment:"/>
+                    <TextBlock Text="{Binding TotalPayment}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+
+                <TextBlock  Margin="0 8 0 2" Style="{StaticResource SubtitleTextBlockStyle}" Text="Product List"/> 
+                <ScrollViewer Height="Auto" VerticalScrollMode="Enabled">
+                    <controls:DataGrid
+                        Name="OrderDetailListDataGrid"
+                        IsReadOnly="True"
+                        AutoGenerateColumns="False"
+                        GridLinesVisibility="All"
+                        HorizontalGridLinesBrush="Black"
+                        ItemsSource="{x:Bind ViewModel.OrderDetailList, Mode=OneWay}">
+
+                        <controls:DataGrid.Columns>
+                            <controls:DataGridTextColumn Binding="{Binding Product.Name}" Header="Product Name"/>
+                            <controls:DataGridTextColumn Binding="{Binding Quantity}" Header="Quantity" />
+                            <controls:DataGridTextColumn Binding="{Binding ImportPrice}" Header="Import Price" />
+                            <controls:DataGridTextColumn Binding="{Binding SalePrice}" Header="Sale Price" Width="*" />
+                        </controls:DataGrid.Columns>
+                    </controls:DataGrid>
+                </ScrollViewer>
+
+            </StackPanel>
+		</Grid>
+		
+		
+    </Grid>
+</Page>

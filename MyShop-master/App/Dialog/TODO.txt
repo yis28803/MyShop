@@ -1,0 +1,1 @@
+﻿Remove items in this folder to Views folder. Init dialog in view codebehind.

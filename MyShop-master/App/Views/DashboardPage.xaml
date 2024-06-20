@@ -1,0 +1,226 @@
+﻿<Page
+    x:Class="App.Views.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls" xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI" xmlns:models="using:Models"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="TopSellingProductListViewTemplate" x:DataType="models:ProductSoldCount">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Ellipse x:Name="Ellipse"
+                    Grid.RowSpan="2"
+                    Width ="8"
+                    Height="8"
+                    Margin="6"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Fill="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                <TextBlock Grid.Column="1"
+                    Text="{x:Bind Name}"
+                    x:Phase="1"
+                    Style="{ThemeResource BaseTextBlockStyle}"
+                    Margin="12,6,0,0"/>
+                <TextBlock  Grid.Column="1"
+                    Grid.Row="1"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Margin="12,0,0,6"><Run Text="Sold: "> </Run><Run Text="{x:Bind TotalQuantitySold}"/></TextBlock>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+    
+	<ScrollViewer Padding="0 0 8 0" Name="PageScrollViewer">
+		<Grid x:Name="ContentArea">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+
+			<Grid Grid.Row="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+				
+			
+
+				<StackPanel Padding="16" Margin="0, 0, 32, 16"  BorderThickness="1" BorderBrush="Black" CornerRadius="8,8,8,8">
+                    <TextBlock Text="Total Product" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock TextAlignment="Right" Margin="0 8 32 4" Text="{x:Bind ViewModel.TotalProduct }" Style="{StaticResource TitleLargeTextBlockStyle}" />
+				</StackPanel>
+                <StackPanel Grid.Column="1" Padding="16" Margin="0, 0, 34, 16" Background="Transparent" BorderThickness="1" BorderBrush="Black" CornerRadius="8,8,8,8">
+                    <TextBlock Text="Total order in week" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock TextAlignment="Right" Margin="0 8 32 4" Text="{x:Bind ViewModel.TotalWeekOrder}" Style="{StaticResource TitleLargeTextBlockStyle}" />
+				</StackPanel>
+                <StackPanel Grid.Column="2" Padding="16" Margin="0, 0, 34, 16" Background="Transparent" BorderThickness="1" BorderBrush="Black" CornerRadius="8,8,8,8">
+					<TextBlock Text="Total order in month" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock TextAlignment="Right" Margin="0 8 32 4" Text="{x:Bind ViewModel.TotalMonthOrder}" Style="{StaticResource TitleLargeTextBlockStyle}" />
+				</StackPanel>
+
+			</Grid>
+
+
+
+            <StackPanel Grid.Row="3" Padding="0 20 0 0 ">
+				<TextBlock Text="Top Five Out of Stock" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+				<Grid x:Name="TopFive">
+					<Grid.Resources>
+						<ResourceDictionary>
+							<SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="Transparent"/>
+							<SolidColorBrush x:Key="DataGridCellFocusVzisualSecondaryBrush" Color="Transparent"/>
+						</ResourceDictionary>
+					</Grid.Resources>
+
+					<controls:DataGrid
+                    IsReadOnly="True"
+                    AutoGenerateColumns="False"
+                    GridLinesVisibility="All"
+                    HorizontalGridLinesBrush="Black"
+                    ItemsSource="{x:Bind ViewModel.TopProductOutOfStock, Mode=OneWay}">
+
+						<controls:DataGrid.Columns>
+							<controls:DataGridTextColumn Binding="{Binding Id}" Header="ID"/>
+							<controls:DataGridTextColumn Binding="{Binding Name}" Header="Name" />
+							<controls:DataGridTextColumn Binding="{Binding SalePrice}" Header="Sale price" />
+							<controls:DataGridTextColumn Binding="{Binding ImportPrice}" Header="Import price" />
+							<controls:DataGridTextColumn Binding="{Binding Quantity}" Header="Quantity" />
+							<controls:DataGridTextColumn Binding="{Binding Category.Name}" Header="Category" Width="*"/>
+						</controls:DataGrid.Columns>
+					</controls:DataGrid>
+				</Grid>
+			</StackPanel>
+            <Grid  Name="ChartSection" Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <TextBlock Text="Revenue and Profit Stastics" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </Grid>
+                <Grid Name="DayIncomeSection" Grid.Row="1" DataContext="{x:Bind ViewModel.DayIncomeChart}">
+                    <lvc:CartesianChart  
+                        PointerEntered="OnChartPointerEnter"
+                        PointerExited="OnChartPointerExit"
+                        VerticalAlignment="Center"
+                        Height="400" Width="1200" 
+                        XAxes="{Binding XAxes}" 
+                        YAxes="{Binding YAxes}"
+                        Series="{Binding Series}" 
+                        ZoomMode="X"
+                        LegendPosition="Right"
+                        LegendTextPaint="{Binding LegendTextPaint}"
+                        LegendBackgroundPaint="{Binding LedgendBackgroundPaint}"
+                        LegendTextSize="16">
+                    </lvc:CartesianChart>
+                </Grid>
+                <Grid  Name="WeekIncomeSection" Grid.Row="2" DataContext="{x:Bind ViewModel.WeekIncomeChart}">
+                    <lvc:CartesianChart  
+                        PointerEntered="OnChartPointerEnter"
+                        PointerExited="OnChartPointerExit"
+                        VerticalAlignment="Center"
+                        Height="400" Width="1200"
+                        XAxes="{Binding XAxes}" 
+                        YAxes="{Binding YAxes}"
+                        Series="{Binding Series}" 
+                        ZoomMode="X"
+                        LegendPosition="Right"
+                        LegendTextPaint="{Binding LegendTextPaint}"
+                        LegendBackgroundPaint="{Binding LedgendBackgroundPaint}"
+                        LegendTextSize="16">            
+                    </lvc:CartesianChart>
+                </Grid>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Name="MonthIncomeSection" DataContext="{x:Bind ViewModel.MonthIncomeChart}">
+                        <lvc:CartesianChart  
+                            PointerEntered="OnChartPointerEnter"
+                            PointerExited="OnChartPointerExit"
+                            VerticalAlignment="Center"
+                            Height="400" Width="800"
+                            XAxes="{Binding XAxes}" 
+                            YAxes="{Binding YAxes}"
+                            Series="{Binding Series}" 
+                            ZoomMode="X"
+                            LegendPosition="Right"
+                            LegendTextPaint="{Binding LegendTextPaint}"
+                            LegendBackgroundPaint="{Binding LedgendBackgroundPaint}"
+                            LegendTextSize="16"/>
+                    </Grid>
+                    <Grid Name="YearIncomeSection" Grid.Column="1" DataContext="{x:Bind ViewModel.YearIncomeChart}">
+                        <lvc:CartesianChart  
+                            PointerEntered="OnChartPointerEnter"
+                            PointerExited="OnChartPointerExit"
+                            VerticalAlignment="Center"
+                            Height="400" Width="400"
+                            XAxes="{Binding XAxes}" 
+                            YAxes="{Binding YAxes}"
+                            Series="{Binding Series}" 
+                            ZoomMode="X"
+                            LegendPosition="Right"
+                            LegendTextPaint="{Binding LegendTextPaint}"
+                            LegendBackgroundPaint="{Binding LedgendBackgroundPaint}"
+                            LegendTextSize="16"/>       
+                    </Grid>
+                </Grid>
+
+            </Grid>
+            
+
+            <Grid Grid.Row="1" Name="TopSellingSection" Margin="0 16 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Padding="16" Margin="0, 0, 34, 34"  BorderThickness="2" BorderBrush="Black" CornerRadius="8,8,8,8">
+                    <TextBlock Text="Top Selling This Week" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <ListView
+                        Margin="0 8 0 0"
+                        ItemsSource="{x:Bind ViewModel.WeekTopProductsSoldCounts}"
+                        SelectionMode="None"
+                        ItemTemplate="{StaticResource TopSellingProductListViewTemplate}">
+                    </ListView>
+                </StackPanel>
+                <StackPanel Padding="16" Margin="0, 0, 34, 34"  BorderThickness="2" Grid.Column="1" BorderBrush="Black" CornerRadius="8,8,8,8">
+                    <TextBlock Text="Top Selling This Month" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <ListView
+                        Margin="0 8 0 0"
+                        ItemsSource="{x:Bind ViewModel.MonthTopProductsSoldCounts}"
+                        SelectionMode="None"
+                        ItemTemplate="{StaticResource TopSellingProductListViewTemplate}">
+                    </ListView> 
+                </StackPanel>
+                <StackPanel Padding="16" Margin="0, 0, 34, 34"  BorderThickness="2" Grid.Column="2" BorderBrush="Black" CornerRadius="8,8,8,8">
+                    <TextBlock Text="Top Selling This Year" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <ListView
+                        Margin="0 8 0 0"
+                        ItemsSource="{x:Bind ViewModel.YearTopProductsSoldCounts}"
+                        SelectionMode="None"
+                        ItemTemplate="{StaticResource TopSellingProductListViewTemplate}">
+                    </ListView>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        
+	</ScrollViewer>
+</Page>
